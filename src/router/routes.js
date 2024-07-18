@@ -1,14 +1,44 @@
 const routes = [
   {
     path: "/",
+
     alias: ["/index", "/index.html"],
     component: () => import("layouts/MainLayout.vue"),
-    children: [{ path: "", component: () => import("pages/IndexPage.vue") }],
+    children: [
+      {
+        path: "",
+        name: "Index",
+        component: () => import("pages/IndexPage.vue"),
+      },
+    ],
+    meta: { transition: "slide-left" },
   },
   {
     path: "/login",
+
     component: () => import("layouts/MainLayout.vue"),
-    children: [{ path: "", component: () => import("pages/LoginPage.vue") }],
+    children: [
+      {
+        path: "",
+        name: "Login",
+        component: () => import("pages/LoginPage.vue"),
+      },
+    ],
+    meta: { transition: "slide-left" },
+  },
+
+  {
+    path: "/update",
+
+    component: () => import("layouts/MainLayout.vue"),
+    children: [
+      {
+        path: "",
+        name: "Update",
+        component: () => import("pages/UpdateWarningPage.vue"),
+      },
+    ],
+    meta: { transition: "slide-left" },
   },
 
   // Always leave this as last one,

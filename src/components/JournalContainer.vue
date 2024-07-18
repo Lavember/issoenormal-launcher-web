@@ -2,8 +2,18 @@
   <div class="journal-container">
     <div class="header flex justify-between">
       <div class="header-left">
-        <img src="logo.png" class="logo" />
-        <p class="title">ISSO É NORMAL?</p>
+        <div
+          :class="versionStore.data.bell ? 'logo bellLogo' : 'logo'"
+          :style="`background-image: url('/${
+            versionStore.data.bell ? 'bellbs' : 'logo'
+          }.png'); --borderColor: ${
+            versionStore.data.bell ? '255, 198, 217' : '255, 189, 89'
+          }`"
+        ></div>
+        <p class="title headerBell" v-if="versionStore.data.bell">
+          BELLBS LINDA!!!
+        </p>
+        <p class="title" v-else>ISSO É NORMAL?</p>
       </div>
       <div class="header-btns">
         <q-btn
@@ -11,17 +21,21 @@
           icon="img:cord.png"
           :ripple="false"
           class="header-btn icon-btn"
+          @click="openDiscord"
         />
-        <q-btn push class="header-btn" :ripple="false">Patch Notes</q-btn>
+        <q-btn push class="header-btn" :ripple="false" disabled
+          >Patch Notes</q-btn
+        >
         <q-btn
           push
+          disabled
           icon="img:dario.png"
           :ripple="false"
           class="header-btn icon-btn"
         />
       </div>
     </div>
-    <div class="slide-container">
+    <div class="slide-container" v-if="playerStore.isLoading == false">
       <swiper-container
         :effect="'cards'"
         :grabCursor="true"
@@ -31,10 +45,18 @@
         :slideActiveClass="'active-slide'"
         class="carousel"
       >
-        <swiper-slide v-for="n in 4" :key="n" class="swiper-slide"
-          ><div class="slide"><img src="jornal.png" class="slide-img" /></div
+        <swiper-slide class="swiper-slide" v-for="slide in news" :key="slide.id"
+          ><div class="slide">
+            <img
+              :src="host + slide.value"
+              class="slide-img"
+              :style="
+                versionStore.data.bell
+                  ? 'filter: hue-rotate(289deg) saturate(0.5);'
+                  : ''
+              "
+            /></div
         ></swiper-slide>
-        ...
       </swiper-container>
 
       <!-- <q-carousel
@@ -54,15 +76,32 @@
   </div>
 </template>
 <script setup>
-import { ref } from "vue";
+import { computed, ref } from "vue";
 
 import Swiper from "swiper";
 import "swiper/css";
 import "swiper/css/bundle";
 
+const versionStore = useVersionStore();
+const playerStore = usePlayerStore();
+
+let host = process.env.SERVER_HOST;
+
+const news = computed(() => {
+  let i = 0;
+  console.log(playerStore.server_api_info.news);
+  return playerStore.server_api_info.news.map((v) => ({ id: i++, value: v }));
+});
+
 // Now you can use Swiper
 import { EffectCards, Mousewheel, Navigation } from "swiper/modules";
+import { useVersionStore } from "src/stores/version";
+import { usePlayerStore } from "src/stores/player";
 const modules = [EffectCards, Mousewheel, Navigation];
+
+function openDiscord() {
+  window.eel.open_url("https://discord.gg/tbSq3WuQxw");
+}
 </script>
 <style>
 .logo {
@@ -70,8 +109,88 @@ const modules = [EffectCards, Mousewheel, Navigation];
   height: 30px;
   margin: 0;
   margin-left: 4px;
-  border: 2px solid #ffbd59;
+  border: 2px solid;
+  border-color: rgb(var(--borderColor));
   border-radius: 2px;
+  transition: all 0.5s ease;
+  transform: rotate(0deg);
+  background-size: cover;
+  position: relative;
+  overflow: hidden;
+}
+
+.logo:hover {
+  animation: rotateAnim forwards 1s infinite;
+  animation-timing-function: ease-in-out;
+  box-shadow: 0 0 6px rgb(var(--borderColor));
+}
+
+.logo:before {
+  content: " ";
+  position: absolute;
+  top: 0;
+  left: -50px;
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(
+    120deg,
+    transparent,
+    rgba(var(--borderColor), 0.3),
+    transparent
+  );
+  animation: shineAnim forwards 2s infinite;
+  transition: all 650ms;
+}
+
+.logo.bellLogo:hover {
+  animation: rotateAnimBell forwards 1s infinite;
+}
+
+.headerBell {
+  font-weight: bolder;
+  animation: shineHeaderAnim forwards 5s infinite;
+}
+
+@keyframes shineHeaderAnim {
+  0% {
+    text-shadow: 0 0 0px rgba(255, 198, 217, 0.5);
+  }
+  50% {
+    text-shadow: 0 0 10px rgba(255, 198, 217, 0.7);
+  }
+  100% {
+    text-shadow: 0 0 0px rgba(255, 198, 217, 0.5);
+  }
+}
+
+@keyframes shineAnim {
+  0% {
+    left: -50px;
+  }
+  20% {
+    left: 100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+@keyframes rotateAnim {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes rotateAnimBell {
+  0% {
+    transform: rotate3d(0);
+  }
+  100% {
+    transform: rotate3d(1, 1, 1, 360deg);
+  }
 }
 
 .header-left {
@@ -122,7 +241,7 @@ const modules = [EffectCards, Mousewheel, Navigation];
 }
 
 .carousel {
-  width: 248px !important;
+  width: 285px !important;
   height: 317px !important;
   display: flex;
   flex-direction: column;
@@ -140,8 +259,10 @@ const modules = [EffectCards, Mousewheel, Navigation];
 
 .slide {
   background: #545454;
-  width: auto;
-  height: auto;
+  width: 285px;
+  height: 317px;
+  /* transform-origin: top left;
+  transform: scale(0.5); */
   margin: 10px;
   margin: 0;
 }
@@ -161,7 +282,9 @@ const modules = [EffectCards, Mousewheel, Navigation];
 }
 
 .slide-img {
-  width: 248px;
+  width: auto;
   height: 317px;
+  image-rendering: -webkit-optimize-contrast;
+  /* image-rendering: pixelated; */
 }
 </style>

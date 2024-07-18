@@ -31,9 +31,10 @@
 html,
 body {
   width: 642px;
-  height: 394px;
-  max-height: 394px;
+  height: 400px;
+  max-height: 400px;
   overflow: hidden;
+  background: #202020;
 }
 
 body {
@@ -41,6 +42,7 @@ body {
   color: white;
   transform-origin: top left;
   transform: scale(1.5);
+  // zoom: 1.5;
 }
 
 ::selection {

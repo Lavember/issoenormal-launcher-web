@@ -1,0 +1,1 @@
+import{D as e}from"./index.53999282.js";const a=e("player",{state:()=>({data:{nickname:"",score:0,awards:[]},server:{online:!1,players:0},server_api_info:{events:[],news:[]},isLoading:!0})});export{a as u};
